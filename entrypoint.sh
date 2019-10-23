@@ -355,6 +355,25 @@ has_external_hostname() {
   fi
 }
 
+arbitrary_user() {
+  # Ensure $HOME exists when starting
+  if [ ! -d "${HOME}" ]; then
+    mkdir -p "${HOME}"
+  fi
+
+  # Setup $PS1 for a consistent and reasonable prompt
+  if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
+    echo "PS1='\s-\v \w \$ '" > "${HOME}"/.bashrc
+  fi
+
+  # Add current (arbitrary) user to /etc/passwd
+  if ! whoami &> /dev/null; then
+    if [ -w /etc/passwd ]; then
+      echo "${USER_NAME:-user}:x:$(id -u):0:${USER_NAME:-user} user:${HOME}:/bin/bash" >> /etc/passwd
+    fi
+  fi
+}
+
 # SITTERM / SIGINT
 responsible_shutdown() {
   echo ""
@@ -371,6 +390,7 @@ set +o posix
 # on callback, kill the last background process, which is `tail -f /dev/null` and execute the specified handler
 trap 'responsible_shutdown' SIGHUP SIGTERM SIGINT
 
+arbitrary_user
 init
 init_global_variables
 set_environment_variables

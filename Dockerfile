@@ -30,7 +30,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.expose-services="" \
       usage=""
 
-USER root
+USER 0
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.access.redhat.com or registry.redhat.io
 # COPY content_sets.repo /etc/yum.repos.d/
@@ -52,5 +52,6 @@ RUN tar xzf /tmp/codeready-workspaces-assembly-main.tar.gz --strip-components=1 
 # NOTE: Can not run yum commands in upstream image -- fails due to lack of subscription / entitlement
 # RUN yum update -y python3-six pango && yum clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
-USER jboss
+USER 1001
+ENV HOME=/home/jboss
 ENTRYPOINT ["/entrypoint.sh"]
